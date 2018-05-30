@@ -17,9 +17,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -61,9 +64,18 @@ public class Config {
 	public FilterRegistrationBean getUrlRewriteFilter() {
 		// Encode branch paths in uri to allow request mapping to work
 		return new FilterRegistrationBean(new BranchPathUriRewriteFilter(
+				// /templates/{templateName}
+				"/templates/(.*)",
+
+				// /{branchPath}/templates
 				"/(.*)/templates",
-				"/(.*)/templates/.*"
-		));
+
+				// /{branchPath}/templates/{templateName}/empty-input-file
+				// /{branchPath}/templates/{templateName}/generate
+				// /{branchPath}/templates/{templateName}/concepts
+				"/(.*)/templates/(.*)/.*"
+
+		).rewriteEncodedSlash());
 	}
 
 	// Swagger Config
@@ -91,6 +103,18 @@ public class Config {
 					.and().httpBasic();
 			http.csrf().disable();
 			http.addFilterAfter(new RequestHeaderAuthenticationDecorator(), BasicAuthenticationFilter.class);
+		}
+
+		@Bean
+		public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+			DefaultHttpFirewall firewall = new DefaultHttpFirewall();
+			firewall.setAllowUrlEncodedSlash(true);
+			return firewall;
+		}
+
+		@Override
+		public void configure(WebSecurity web) throws Exception {
+			web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
 		}
 
 	}

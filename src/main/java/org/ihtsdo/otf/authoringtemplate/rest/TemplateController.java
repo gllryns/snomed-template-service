@@ -46,7 +46,7 @@ public class TemplateController {
 	@RequestMapping(value = "/templates/{templateName}", method = RequestMethod.PUT, produces = "application/json")
 	@ResponseBody
 	public ConceptTemplate updateTemplate(@PathVariable String templateName, @RequestBody ConceptTemplate conceptTemplate) throws IOException {
-		return templateService.update(templateName, conceptTemplate);
+		return templateService.update(decodeTemplateName(templateName), conceptTemplate);
 	}
 
 	@RequestMapping(value = "/templates", method = RequestMethod.GET, produces = "application/json")
@@ -67,6 +67,7 @@ public class TemplateController {
 	@RequestMapping(value = "/templates/{templateName}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public ConceptTemplate getTemplate(@PathVariable String templateName) throws ResourceNotFoundException, IOException {
+		templateName = decodeTemplateName(templateName);
 		ConceptTemplate template = templateService.load(templateName);
 		if (template == null) {
 			throw new ResourceNotFoundException("Template", templateName);
@@ -80,7 +81,7 @@ public class TemplateController {
 								  HttpServletResponse response) throws IOException, ResourceNotFoundException {
 
 		response.setContentType("text/tab-separated-values; charset=utf-8");
-		templateService.writeEmptyInputFile(BranchPathUriUtil.parseBranchPath(branchPath), templateName, response.getOutputStream());
+		templateService.writeEmptyInputFile(BranchPathUriUtil.parseBranchPath(branchPath), decodeTemplateName(templateName), response.getOutputStream());
 	}
 
 	@RequestMapping(value = "/{branchPath}/templates/{templateName}/generate", method = RequestMethod.POST, consumes = "multipart/form-data")
@@ -88,15 +89,15 @@ public class TemplateController {
 	public List<ConceptOutline> generateConcepts(@PathVariable String branchPath,
 												 @PathVariable String templateName,
 												 @RequestParam("tsvFile") MultipartFile tsvFile) throws IOException, ServiceException {
-		return templateService.generateConcepts(BranchPathUriUtil.parseBranchPath(branchPath), templateName, tsvFile.getInputStream());
+		return templateService.generateConcepts(BranchPathUriUtil.parseBranchPath(branchPath), decodeTemplateName(templateName), tsvFile.getInputStream());
 	}
 
 	@RequestMapping(value = "/templates/reload", method = RequestMethod.POST)
 	public void reloadCache() throws IOException {
 		templateService.reloadCache();
 	}
-	
-	
+
+
 	@RequestMapping(value = "/{branchPath}/templates/{templateName}/concepts", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public Set<String> searchConcepts(@PathVariable String branchPath,
@@ -104,6 +105,10 @@ public class TemplateController {
 									  @RequestParam Boolean logicalMatch,
 									  @RequestParam(required=false) Boolean lexicalMatch,
 									  @RequestParam(value="stated", defaultValue="true") boolean stated) throws IOException, ServiceException {
-		return searchService.searchConceptsByTemplate(templateName, BranchPathUriUtil.parseBranchPath(branchPath), logicalMatch, lexicalMatch, stated);
+		return searchService.searchConceptsByTemplate(decodeTemplateName(templateName), BranchPathUriUtil.parseBranchPath(branchPath), logicalMatch, lexicalMatch, stated);
+	}
+
+	private String decodeTemplateName(@PathVariable String templateName) {
+		return BranchPathUriUtil.parseBranchPath(templateName);
 	}
 }
