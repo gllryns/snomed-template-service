@@ -26,13 +26,13 @@ public class TestDataHelper {
 	public static final String STATED_RELATIONSHIP = "STATED_RELATIONSHIP";
 
 
-	public static ConceptPojo createConceptPojo() {
+	public static ConceptPojo createConceptPojo(String preferedTerm, String fsn) {
 		ConceptPojo pojo = new ConceptPojo();
 		pojo.setActive(true);
 		pojo.setModuleId("900000000000012004");
 		pojo.setConceptId("123456");
 		pojo.setDefinitionStatus(org.ihtsdo.otf.rest.client.snowowl.pojo.DefinitionStatus.FULLY_DEFINED);
-		Set<DescriptionPojo> descriptions = createDescriptionPojos();
+		Set<DescriptionPojo> descriptions = createDescriptionPojos(preferedTerm, fsn);
 		pojo.setDescriptions(descriptions);
 		Set<RelationshipPojo> relationships = createRelationshipPojos("123456", true);
 		pojo.setRelationships(relationships);
@@ -72,31 +72,31 @@ public class TestDataHelper {
 		return pojos;
 	}
 
-	public static Set<DescriptionPojo> createDescriptionPojos() {
+	public static Set<DescriptionPojo> createDescriptionPojos(String preferredTerm, String fsn) {
 		Set<DescriptionPojo> pojos = new HashSet<>();
 		DescriptionPojo pojo = new DescriptionPojo();
 		pojo.setReleased(true);
 		pojo.setActive(true);
 		pojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		pojo.setTerm("Allergy to almond");
+		pojo.setTerm(preferredTerm);
 		pojo.setType(DescriptionType.SYNONYM.name());
 		pojo.setAcceptabilityMap(constructAcceptabilityMap(PREFERRED, PREFERRED));
 		pojos.add(pojo);
 		
-		DescriptionPojo fsn = new DescriptionPojo();
-		fsn.setReleased(true);
-		fsn.setActive(true);
-		fsn.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		fsn.setTerm("Allergy to almond (disorder)");
-		fsn.setType(DescriptionType.FSN.name());
-		fsn.setAcceptabilityMap(constructAcceptabilityMap(PREFERRED, PREFERRED));
-		pojos.add(fsn);
+		DescriptionPojo fsnPojo = new DescriptionPojo();
+		fsnPojo.setReleased(true);
+		fsnPojo.setActive(true);
+		fsnPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
+		fsnPojo.setTerm(fsn);
+		fsnPojo.setType(DescriptionType.FSN.name());
+		fsnPojo.setAcceptabilityMap(constructAcceptabilityMap(PREFERRED, PREFERRED));
+		pojos.add(fsnPojo);
 		
 		DescriptionPojo textDefinition = new DescriptionPojo();
 		textDefinition.setReleased(true);
 		textDefinition.setActive(true);
 		textDefinition.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		textDefinition.setTerm("Allergy to almond text definition");
+		textDefinition.setTerm("Text definition");
 		textDefinition.setType("TEXT_DEFINITION");
 		textDefinition.setAcceptabilityMap(constructAcceptabilityMap(PREFERRED, PREFERRED));
 		pojos.add(textDefinition);
@@ -171,7 +171,7 @@ public class TestDataHelper {
 		pojo.setModuleId("900000000000012004");
 		pojo.setConceptId("1234445");
 		pojo.setDefinitionStatus(org.ihtsdo.otf.rest.client.snowowl.pojo.DefinitionStatus.FULLY_DEFINED);
-		Set<DescriptionPojo> descriptions = createDescriptionPojos();
+		Set<DescriptionPojo> descriptions = createDescriptionPojos("CT guided injection of foot","Injection of foot using computed tomography guidance (procedure)");
 		pojo.setDescriptions(descriptions);
 		List<Map<String, String>> typeAndValues = new ArrayList<>();
 		Map<String, String> group0 = new HashMap<>();

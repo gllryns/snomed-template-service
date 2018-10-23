@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,8 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.ihtsdo.otf.authoringtemplate.Config;
-import org.ihtsdo.otf.authoringtemplate.TestConfig;
 import org.ihtsdo.otf.authoringtemplate.service.exception.ServiceException;
 import org.ihtsdo.otf.authoringtemplate.transform.TestDataHelper;
 import org.ihtsdo.otf.rest.client.snowowl.SnowOwlRestClient;
@@ -37,13 +37,14 @@ import org.snomed.authoringtemplate.domain.logical.LogicalTemplate;
 import org.snomed.authoringtemplate.service.LogicalTemplateParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {Config.class, TestConfig.class})
-public class TemplateConceptSearchServiceTest {
+public class TemplateConceptSearchServiceTest extends AbstractServiceTest {
 
 	private static final String TEMPLATES = "/templates/";
 
@@ -67,15 +68,23 @@ public class TemplateConceptSearchServiceTest {
 	
 	private LogicalTemplateParserService logicalTemplateParser;
 	
+	private Gson gson;
+	
+	private String templateName;
+	
+	private TemplateSearchRequest request;
+	
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException, URISyntaxException {
 		logicalTemplateParser = new LogicalTemplateParserService();
+		gson = new GsonBuilder().setPrettyPrinting().create();
+		templateName = setUpTempate("CT guided [procedure] of [body structure]");
 	}
 	
 	@Test
 	public void searchConceptsLogicallyAndLexically() throws ServiceException, IOException, URISyntaxException {
-		String templateName = createCTGuidedProcedureTemplate();
-		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", true, true, true);
+		request = new TemplateSearchRequest(true, true);
+		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", request);
 		assertNotNull(concepts);
 		assertTrue(concepts.isEmpty());
 	}
@@ -83,7 +92,7 @@ public class TemplateConceptSearchServiceTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void searchConceptsLogicallyWithoutMatchingResults() throws Exception {
-		String templateName = createCTGuidedProcedureTemplate();
+		request = new TemplateSearchRequest(true, null);
 		ConceptPojo testConcept = TestDataHelper.createCTGuidedProcedureConcept(true);
 		RelationshipPojo additionalRel = new RelationshipPojo(0, "246075003", "6543217", TestDataHelper.STATED_RELATIONSHIP);
 		testConcept.add(additionalRel);
@@ -93,13 +102,13 @@ public class TemplateConceptSearchServiceTest {
 		when(terminologyServerClient.searchConcepts(anyString(), anyList()))
 		.thenReturn(Arrays.asList(testConcept));
 		
-		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", true, null, true);
+		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", request);
 		assertNotNull(concepts);
 		assertEquals(0, concepts.size());
 	}
 
-	private String createCTGuidedProcedureTemplate() throws IOException, URISyntaxException {
-		String templateName = "CT guided [procedure] of [body structure]";
+	
+	private String setUpTempate(String templateName) throws IOException, URISyntaxException {
 		FileUtils.copyFileToDirectory(new File(getClass().getResource(TEMPLATES + templateName + JSON).toURI()), jsonStore.getStoreDirectory());
 		ConceptTemplate template = jsonStore.load(templateName, ConceptTemplate.class);
 		when(templateService.loadOrThrow(anyString()))
@@ -112,15 +121,33 @@ public class TemplateConceptSearchServiceTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void searchConceptsLogicallyWithResults() throws Exception {
-		String templateName = createCTGuidedProcedureTemplate();
+		String templateName = setUpTempate("CT guided [procedure] of [body structure]");
 		ConceptPojo testConcept = TestDataHelper.createCTGuidedProcedureConcept(true);
 		when(terminologyServerClient.eclQuery(anyString(), anyString(), anyInt(), anyBoolean()))
 		.thenReturn(new HashSet<>(Arrays.asList(testConcept.getConceptId())));
 		
 		when(terminologyServerClient.searchConcepts(anyString(), anyList()))
 		.thenReturn(Arrays.asList(testConcept));
+		request = new TemplateSearchRequest(true, null);
+		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", request);
+		assertNotNull(concepts);
+		assertEquals(1, concepts.size());
+	}
+	
+	
+	@Test
+	public void searchConceptsWithPreciseLexicalMatch() throws Exception {
+		ConceptPojo conceptToSearch = null;
+		templateName = setUpTempate("Allergy to [substance]");
+		try (Reader conceptJsonReader = new InputStreamReader(getClass().getResourceAsStream("Allergy_To_Peas_Concept.json"), Constants.UTF_8)) {
+				conceptToSearch = gson.fromJson(conceptJsonReader, ConceptPojo.class);
+		}
+		when(terminologyServerClient.eclQuery(anyString(), anyString(), anyInt(), anyBoolean()))
+		.thenReturn(new HashSet<>(Arrays.asList(conceptToSearch.getConceptId())));
 		
-		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", true, null, true);
+		mockSearchConcepts(conceptToSearch);
+		request = new TemplateSearchRequest(true, true, true, true);
+		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", request);
 		assertNotNull(concepts);
 		assertEquals(1, concepts.size());
 	}
@@ -128,7 +155,6 @@ public class TemplateConceptSearchServiceTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void searchConceptsLogicallyWithoutOptionalAttributeType() throws Exception {
-		String templateName = createCTGuidedProcedureTemplate();
 		
 		ConceptPojo testConcept = TestDataHelper.createCTGuidedProcedureConcept(false);
 		when(terminologyServerClient.eclQuery(anyString(), anyString(), anyInt(), anyBoolean()))
@@ -137,7 +163,8 @@ public class TemplateConceptSearchServiceTest {
 		when(terminologyServerClient.searchConcepts(anyString(), anyList()))
 		.thenReturn(Arrays.asList(testConcept));
 		
-		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", true, null, true);
+		request = new TemplateSearchRequest(true, null);
+		Set<String> concepts = searchService.searchConceptsByTemplate(templateName, "test", request);
 		assertNotNull(concepts);
 		assertEquals(1, concepts.size());
 	}

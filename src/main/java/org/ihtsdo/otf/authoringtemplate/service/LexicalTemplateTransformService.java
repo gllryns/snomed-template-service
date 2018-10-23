@@ -65,7 +65,7 @@ public class LexicalTemplateTransformService {
 		for (Description description : others) {
 			Description toTransform = description.clone();
 			String term = toTransform.getTermTemplate();
-			Set<String> termSlotNames = TemplateUtil.getSlots(term);
+			Set<String> termSlotNames = TemplateUtil.getSlots(toTransform.getTermTemplate());
 			Map<String, String> termAndCaseSignificanceMap = new HashMap<>();
 			for (String slotName : termSlotNames) {
 				LexicalTemplate template = lexicalTemplateMap.get(slotName);

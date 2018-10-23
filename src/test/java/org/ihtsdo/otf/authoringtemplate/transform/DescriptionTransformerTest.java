@@ -27,7 +27,7 @@ public class DescriptionTransformerTest {
 
 	@Test
 	public void testTransform() throws ServiceException {
-		ConceptPojo conceptToTransform = TestDataHelper.createConceptPojo();
+		ConceptPojo conceptToTransform = TestDataHelper.createConceptPojo("Allergy to almond", "Allergy to almond (disorder)");
 		ConceptOutline conceptOutline = TestDataHelper.createConceptOutline();
 		String inactivationReason = "Out_Of_Dated";
 		ConceptTemplate conceptTempalte = new ConceptTemplate();
@@ -57,7 +57,7 @@ public class DescriptionTransformerTest {
 				assertTrue(pojo.isReleased());
 			} else {
 				assertEquals("TEXT_DEFINITION", pojo.getType());
-				assertEquals("Allergy to almond text definition", pojo.getTerm());
+				assertEquals("Text definition", pojo.getTerm());
 				Set<String> valueSet = pojo.getAcceptabilityMap().values().stream().collect(Collectors.toSet());
 				assertEquals(1, valueSet.size());
 				assertEquals(PREFERRED, valueSet.iterator().next());

@@ -27,7 +27,7 @@ private RelationshipTransformer transformer;
 	
 	@Test
 	public void testTransform() throws ServiceException {
-		ConceptPojo conceptToTransform = TestDataHelper.createConceptPojo();
+		ConceptPojo conceptToTransform = TestDataHelper.createConceptPojo("Allergy to almond", "Allergy to almond (disorder)");
 		ConceptOutline conceptOutline = TestDataHelper.createConceptOutline();
 		Map<String, ConceptMiniPojo> attributeSlotMap = new HashMap<>();
 		attributeSlotMap.put("substance", new ConceptMiniPojo("256350002"));

@@ -1,0 +1,238 @@
+{
+  "effectiveTime": "20180731",
+  "moduleId": "900000000000207008",
+  "active": true,
+  "released": true,
+  "conceptId": "767468001",
+  "fsn": "Allergy to peas (disorder)",
+  "definitionStatus": "FULLY_DEFINED",
+  "preferredSynonym": "Allergy to peas",
+  "descriptions": [
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "descriptionId": "3671669019",
+      "conceptId": "767468001",
+      "type": "FSN",
+      "lang": "en",
+      "term": "Allergy to peas (disorder)",
+      "caseSignificance": "CASE_INSENSITIVE",
+      "acceptabilityMap": {
+        "900000000000509007": "PREFERRED",
+        "900000000000508004": "PREFERRED"
+      }
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "descriptionId": "3671670018",
+      "conceptId": "767468001",
+      "type": "SYNONYM",
+      "lang": "en",
+      "term": "Allergy to peas",
+      "caseSignificance": "CASE_INSENSITIVE",
+      "acceptabilityMap": {
+        "900000000000509007": "PREFERRED",
+        "900000000000508004": "PREFERRED"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338859023",
+      "type": {
+        "conceptId": "370135005",
+        "fsn": "Pathological process (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20130131",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "472964009",
+        "fsn": "Allergic process (qualifier value)",
+        "definitionStatus": "PRIMITIVE"
+      },
+      "sourceId": "767468001",
+      "groupId": 0,
+      "characteristicType": "INFERRED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338855028",
+      "type": {
+        "conceptId": "370135005",
+        "fsn": "Pathological process (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20130131",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "472964009",
+        "fsn": "Allergic process (qualifier value)",
+        "definitionStatus": "PRIMITIVE"
+      },
+      "sourceId": "767468001",
+      "groupId": 0,
+      "characteristicType": "STATED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338857020",
+      "type": {
+        "conceptId": "255234002",
+        "fsn": "After (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20130731",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "609327009",
+        "fsn": "Allergic sensitization (disorder)",
+        "definitionStatus": "FULLY_DEFINED"
+      },
+      "sourceId": "767468001",
+      "groupId": 1,
+      "characteristicType": "INFERRED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338858026",
+      "type": {
+        "conceptId": "246075003",
+        "fsn": "Causative agent (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20020131",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "260184002",
+        "fsn": "Peas (substance)",
+        "definitionStatus": "PRIMITIVE"
+      },
+      "sourceId": "767468001",
+      "groupId": 1,
+      "characteristicType": "INFERRED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338854029",
+      "type": {
+        "conceptId": "255234002",
+        "fsn": "After (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20130731",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "609327009",
+        "fsn": "Allergic sensitization (disorder)",
+        "definitionStatus": "FULLY_DEFINED"
+      },
+      "sourceId": "767468001",
+      "groupId": 1,
+      "characteristicType": "STATED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338856027",
+      "type": {
+        "conceptId": "116680003",
+        "fsn": "Is a (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20060131",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "420134006",
+        "fsn": "Propensity to adverse reactions (disorder)",
+        "definitionStatus": "PRIMITIVE"
+      },
+      "sourceId": "767468001",
+      "groupId": 0,
+      "characteristicType": "STATED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338860029",
+      "type": {
+        "conceptId": "116680003",
+        "fsn": "Is a (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20040731",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "409136006",
+        "fsn": "Allergy to legumes (disorder)",
+        "definitionStatus": "FULLY_DEFINED"
+      },
+      "sourceId": "767468001",
+      "groupId": 0,
+      "characteristicType": "INFERRED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    },
+    {
+      "effectiveTime": "20180731",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": true,
+      "relationshipId": "9338853024",
+      "type": {
+        "conceptId": "246075003",
+        "fsn": "Causative agent (attribute)"
+      },
+      "target": {
+        "effectiveTime": "20020131",
+        "moduleId": "900000000000207008",
+        "active": true,
+        "released": true,
+        "conceptId": "260184002",
+        "fsn": "Peas (substance)",
+        "definitionStatus": "PRIMITIVE"
+      },
+      "sourceId": "767468001",
+      "groupId": 1,
+      "characteristicType": "STATED_RELATIONSHIP",
+      "modifier": "EXISTENTIAL"
+    }
+  ]
+}

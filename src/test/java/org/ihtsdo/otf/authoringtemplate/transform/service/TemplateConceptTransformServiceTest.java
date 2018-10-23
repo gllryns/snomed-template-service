@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -26,24 +24,18 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.ihtsdo.otf.authoringtemplate.Config;
-import org.ihtsdo.otf.authoringtemplate.TestConfig;
+import org.ihtsdo.otf.authoringtemplate.service.AbstractServiceTest;
 import org.ihtsdo.otf.authoringtemplate.service.Constants;
 import org.ihtsdo.otf.authoringtemplate.service.JsonStore;
 import org.ihtsdo.otf.authoringtemplate.service.TemplateConceptSearchService;
 import org.ihtsdo.otf.authoringtemplate.service.TemplateService;
-import org.ihtsdo.otf.authoringtemplate.service.TemplateUtil;
 import org.ihtsdo.otf.authoringtemplate.service.exception.ServiceException;
 import org.ihtsdo.otf.authoringtemplate.transform.TemplateTransformRequest;
 import org.ihtsdo.otf.authoringtemplate.transform.TemplateTransformation;
-import org.ihtsdo.otf.authoringtemplate.transform.TestDataHelper;
 import org.ihtsdo.otf.authoringtemplate.transform.TransformationResult;
-import org.ihtsdo.otf.rest.client.RestClientException;
 import org.ihtsdo.otf.rest.client.snowowl.SnowOwlRestClient;
 import org.ihtsdo.otf.rest.client.snowowl.SnowOwlRestClientFactory;
-import org.ihtsdo.otf.rest.client.snowowl.pojo.ConceptMiniPojo;
 import org.ihtsdo.otf.rest.client.snowowl.pojo.ConceptPojo;
-import org.ihtsdo.otf.rest.client.snowowl.pojo.DefinitionStatus;
 import org.ihtsdo.otf.rest.client.snowowl.pojo.DescriptionPojo;
 import org.ihtsdo.otf.rest.client.snowowl.pojo.RelationshipPojo;
 import org.junit.Assert;
@@ -51,20 +43,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.OngoingStubbing;
-import org.snomed.authoringtemplate.domain.CaseSignificance;
 import org.snomed.authoringtemplate.domain.ConceptTemplate;
 import org.snomed.authoringtemplate.domain.DescriptionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {Config.class, TestConfig.class})
-public class TemplateConceptTransformServiceTest {
+public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 	
 	private static final String TEMPLATES = "/templates/";
 
@@ -157,7 +146,7 @@ public class TemplateConceptTransformServiceTest {
 		Set<String> concepts = new HashSet<>();
 		concepts.add("712839001");
 		mockTerminologyServerClient();
-		mockSearchConcepts();
+		mockSearchConcepts(conceptToTransform);
 		
 		TemplateTransformRequest transformRequest = new TemplateTransformRequest();
 		transformRequest.setConceptsToTransform(concepts);
@@ -209,62 +198,7 @@ public class TemplateConceptTransformServiceTest {
 		assertEquals(conceptTransformed, concept);
 	}
 
-	@SuppressWarnings("unchecked")
-	private void mockSearchConcepts() throws RestClientException {
-		
-		List<ConceptPojo> concepts = new ArrayList<>();
-		Set<ConceptMiniPojo> targets = conceptToTransform.getRelationships().stream().filter(r -> r.isActive()).map(r -> r.getTarget()).collect(Collectors.toSet());
-		for (ConceptMiniPojo targetPojo : targets) {
-			concepts.add(constructConceptPojo(targetPojo));
-		}
-		when(terminologyServerClient.searchConcepts(anyString(),any()))
-		.thenReturn(Arrays.asList(conceptToTransform), concepts);
-	}
-
-	private ConceptPojo constructConceptPojo(ConceptMiniPojo conceptMini) {
-		ConceptPojo pojo = new ConceptPojo();
-		pojo.setActive(true);
-		pojo.setConceptId(conceptMini.getConceptId());
-		pojo.setDefinitionStatus(DefinitionStatus.valueOf(conceptMini.getDefinitionStatus()));
-		pojo.setModuleId(conceptMini.getModuleId());
-		Set<DescriptionPojo> descriptions = new HashSet<>();
-		pojo.setDescriptions(descriptions);
-		
-		DescriptionPojo inactiveFsnPojo = new DescriptionPojo();
-		inactiveFsnPojo.setActive(false);
-		inactiveFsnPojo.setTerm("inactive_" + conceptMini.getFsn() );
-		inactiveFsnPojo.setCaseSignificance(CaseSignificance.ENTIRE_TERM_CASE_SENSITIVE.name());
-		inactiveFsnPojo.setType(DescriptionType.FSN.name());
-		descriptions.add(inactiveFsnPojo);
-		
-		DescriptionPojo fsnPojo = new DescriptionPojo();
-		descriptions.add(fsnPojo);
-		fsnPojo.setActive(true);
-		fsnPojo.setTerm(conceptMini.getFsn());
-		fsnPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		fsnPojo.setType(DescriptionType.FSN.name());
-		DescriptionPojo ptPojo = new DescriptionPojo();
-		ptPojo.setTerm(TemplateUtil.getDescriptionFromFSN(conceptMini.getFsn()));
-		if (ptPojo.getTerm().equals("Aluminium")) {
-			ptPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.ACCEPTABLE, Constants.PREFERRED));
-			DescriptionPojo usPtPojo = new DescriptionPojo();
-			usPtPojo.setTerm("Aluminum");
-			usPtPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.PREFERRED,Constants.ACCEPTABLE));
-			usPtPojo.setActive(true);
-			usPtPojo.setType(DescriptionType.SYNONYM.name());
-			usPtPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-			descriptions.add(usPtPojo);
-			
-		} else {
-			ptPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.PREFERRED, Constants.PREFERRED));
-		}
-		ptPojo.setActive(true);
-		ptPojo.setType(DescriptionType.SYNONYM.name());
-		ptPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		descriptions.add(ptPojo);
-		return pojo;
-	}
-
+	
 	private void printTransformedConcept(List<ConceptPojo> transformed) {
 		if (isDebug) {
 			Gson gson =  new GsonBuilder().setPrettyPrinting().create();
@@ -283,7 +217,7 @@ public class TemplateConceptTransformServiceTest {
 		Set<String> concepts = new HashSet<>();
 		concepts.add("418325008");
 		mockTerminologyServerClient();
-		mockSearchConcepts();
+		mockSearchConcepts(conceptToTransform);
 		
 		TemplateTransformRequest transformRequest = new TemplateTransformRequest();
 		transformRequest.setConceptsToTransform(concepts);
@@ -345,7 +279,7 @@ public class TemplateConceptTransformServiceTest {
 		Set<String> concepts = new HashSet<>();
 		concepts.add("402306009");
 		mockTerminologyServerClient();
-		mockSearchConcepts();
+		mockSearchConcepts(conceptToTransform);
 		
 		TemplateTransformRequest transformRequest = new TemplateTransformRequest();
 		transformRequest.setConceptsToTransform(concepts);

@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.ihtsdo.otf.authoringtemplate.service.exception.ServiceException;
+import org.ihtsdo.otf.rest.client.RestClientException;
+import org.ihtsdo.otf.rest.client.snowowl.SnowOwlRestClient;
 import org.ihtsdo.otf.rest.client.snowowl.pojo.ConceptMiniPojo;
 import org.ihtsdo.otf.rest.client.snowowl.pojo.ConceptPojo;
 import org.ihtsdo.otf.rest.client.snowowl.pojo.DescriptionPojo;
@@ -243,5 +245,28 @@ public class TemplateUtil {
 			return StringUtils.uncapitalize(term);
 		} 
 		return term;
+	}
+	
+	public static Map<String, Set<DescriptionPojo>> getSlotDescriptionValuesMap(String branchPath, 
+			Map<String, ConceptMiniPojo> attributeSlotMap, SnowOwlRestClient restClient) throws ServiceException {
+		Map<String, Set<DescriptionPojo>> slotDescriptionMap = new HashMap<>();
+		List<String> conceptIds = attributeSlotMap.values().stream().map(v -> v.getConceptId()).collect(Collectors.toList());
+		List<ConceptPojo> results;
+		try {
+			results = restClient.searchConcepts(branchPath, conceptIds);
+		} catch (RestClientException e) {
+			throw new ServiceException("Failed to search concepts on branch " + branchPath, e);
+		}
+		Map<String, ConceptPojo> conceptPojoMap = new HashMap<>();
+		for (ConceptPojo pojo : results) {
+			conceptPojoMap.put(pojo.getConceptId(), pojo);
+		}
+		for (String slot : attributeSlotMap.keySet()) {
+			ConceptPojo pojo = conceptPojoMap.get(attributeSlotMap.get(slot).getConceptId());
+			if (pojo != null) {
+				slotDescriptionMap.put(slot, conceptPojoMap.get(attributeSlotMap.get(slot).getConceptId()).getDescriptions());
+			}
+		}
+		return slotDescriptionMap;
 	}
 }

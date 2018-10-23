@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.ihtsdo.otf.authoringtemplate.rest.util.ControllerHelper;
 import org.ihtsdo.otf.authoringtemplate.service.TemplateConceptCreateService;
 import org.ihtsdo.otf.authoringtemplate.service.TemplateConceptSearchService;
+import org.ihtsdo.otf.authoringtemplate.service.TemplateSearchRequest;
 import org.ihtsdo.otf.authoringtemplate.service.TemplateService;
 import org.ihtsdo.otf.authoringtemplate.service.exception.ServiceException;
 import org.ihtsdo.otf.authoringtemplate.transform.TemplateTransformRequest;
@@ -124,8 +125,10 @@ public class TemplateController {
 									  @PathVariable String templateName,
 									  @RequestParam Boolean logicalMatch,
 									  @RequestParam(required=false) Boolean lexicalMatch,
+									  @RequestParam(required=false, defaultValue = "false") boolean preciseLexicalMatch,
 									  @RequestParam(defaultValue="true") boolean stated) throws IOException, ServiceException {
-		return searchService.searchConceptsByTemplate(templateName, BranchPathUriUtil.parseBranchPath(branchPath), logicalMatch, lexicalMatch, stated);
+		TemplateSearchRequest request = new TemplateSearchRequest(logicalMatch, lexicalMatch, preciseLexicalMatch, stated);
+		return searchService.searchConceptsByTemplate(templateName, BranchPathUriUtil.parseBranchPath(branchPath), request);
 	}
 	
 	
