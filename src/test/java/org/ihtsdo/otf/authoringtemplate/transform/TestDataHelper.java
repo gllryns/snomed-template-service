@@ -11,10 +11,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.ihtsdo.otf.authoringtemplate.service.Constants;
+import org.ihtsdo.otf.authoringtemplate.service.TemplateUtil;
 import org.ihtsdo.otf.rest.client.terminologyserver.pojo.AxiomPojo;
+import org.ihtsdo.otf.rest.client.terminologyserver.pojo.ConceptMiniPojo;
 import org.ihtsdo.otf.rest.client.terminologyserver.pojo.ConceptPojo;
+import org.ihtsdo.otf.rest.client.terminologyserver.pojo.DefinitionStatus;
 import org.ihtsdo.otf.rest.client.terminologyserver.pojo.DescriptionPojo;
 import org.ihtsdo.otf.rest.client.terminologyserver.pojo.RelationshipPojo;
+import org.ihtsdo.otf.rest.client.terminologyserver.pojo.ConceptMiniPojo.DescriptionMiniPojo;
 import org.snomed.authoringtemplate.domain.Axiom;
 import org.snomed.authoringtemplate.domain.CaseSignificance;
 import org.snomed.authoringtemplate.domain.ConceptMini;
@@ -249,6 +254,70 @@ public class TestDataHelper {
 			results.get(slot).add(pojo);
 		}
 		return results;
+	}
+	
+	public static ConceptPojo constructConceptPojo(ConceptMiniPojo conceptMini) {
+		ConceptPojo pojo = new ConceptPojo();
+		pojo.setActive(true);
+		pojo.setConceptId(conceptMini.getConceptId());
+		pojo.setDefinitionStatus(DefinitionStatus.valueOf(conceptMini.getDefinitionStatus()));
+		pojo.setModuleId(conceptMini.getModuleId());
+		Set<DescriptionPojo> descriptions = new HashSet<>();
+		pojo.setDescriptions(descriptions);
+		
+		DescriptionPojo inactiveFsnPojo = new DescriptionPojo();
+		inactiveFsnPojo.setActive(false);
+		inactiveFsnPojo.setTerm("inactive_" + conceptMini.getFsn() );
+		inactiveFsnPojo.setCaseSignificance(CaseSignificance.ENTIRE_TERM_CASE_SENSITIVE.name());
+		inactiveFsnPojo.setType(DescriptionType.FSN.name());
+		descriptions.add(inactiveFsnPojo);
+		
+		DescriptionPojo fsnPojo = new DescriptionPojo();
+		descriptions.add(fsnPojo);
+		fsnPojo.setActive(true);
+		fsnPojo.setTerm(conceptMini.getFsn().getTerm());
+		fsnPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
+		fsnPojo.setType(DescriptionType.FSN.name());
+		DescriptionPojo ptPojo = new DescriptionPojo();
+		ptPojo.setTerm(TemplateUtil.getDescriptionFromFSN(conceptMini.getFsn().getTerm()));
+		if (ptPojo.getTerm().equals("Aluminium")) {
+			ptPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.ACCEPTABLE, Constants.PREFERRED));
+			DescriptionPojo usPtPojo = new DescriptionPojo();
+			usPtPojo.setTerm("Aluminum");
+			usPtPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.PREFERRED,Constants.ACCEPTABLE));
+			usPtPojo.setActive(true);
+			usPtPojo.setType(DescriptionType.SYNONYM.name());
+			usPtPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
+			descriptions.add(usPtPojo);
+			
+		} else {
+			ptPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.PREFERRED, Constants.PREFERRED));
+		}
+		ptPojo.setActive(true);
+		ptPojo.setType(DescriptionType.SYNONYM.name());
+		ptPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
+		descriptions.add(ptPojo);
+		return pojo;
+	}
+	
+	public static ConceptMiniPojo constructConceptMiniPojo (String conceptId, String fsn) {
+		ConceptMiniPojo pojo = new ConceptMiniPojo(conceptId);
+		pojo.setFsn(new DescriptionMiniPojo(fsn, "en"));
+		String pt = fsn.substring(0, fsn.indexOf("(")).trim();
+		pojo.setPt(new DescriptionMiniPojo(pt, "en"));
+		return pojo;
+	}
+	
+	public static Set<ConceptMiniPojo> constructTestData() {
+		Set<ConceptMiniPojo> concepts = new HashSet<>();
+		concepts.add(constructConceptMiniPojo("719722006", "Has realization (attribute)"));
+		concepts.add(constructConceptMiniPojo("420134006", "Propensity to adverse reaction (finding)"));
+		concepts.add(constructConceptMiniPojo("281647001", "Adverse reaction (disorder)"));
+		concepts.add(constructConceptMiniPojo("472964009", "Allergic process (qualifier value)"));
+		concepts.add(constructConceptMiniPojo("272691005", "Bone structure of shoulder girdle (body structure)"));
+		concepts.add(constructConceptMiniPojo("773760007", "Traumatic event (event)"));
+		concepts.add(constructConceptMiniPojo("72704001", "Fracture (morphologic abnormality)"));
+		return concepts;
 	}
 
 }

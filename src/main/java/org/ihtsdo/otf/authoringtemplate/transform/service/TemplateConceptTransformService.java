@@ -192,9 +192,9 @@ public class TemplateConceptTransformService {
 	private ConceptPojo performTransform(ConceptPojo conceptPojo, TransformationInputData inputData, SnowOwlRestClient restClient) throws ServiceException {
 		ConceptPojo transformed = conceptPojo;
 		ConceptTemplate conceptTemplate = inputData.getDestinationTemplate();
-		Map<String, ConceptMiniPojo> attributeSlotValueMap;
+		Map<String, List<ConceptMiniPojo>> slotToAttributeValuesMap;
 		try {
-			attributeSlotValueMap = constructSlotToTargetValueMap(inputData, conceptPojo, restClient);
+			slotToAttributeValuesMap = constructSlotToTargetValuesMap(inputData, conceptPojo, restClient);
 		} catch (RestClientException e) {
 			throw new ServiceException("Fail to validate slot target values" , e);
 		}
@@ -204,12 +204,12 @@ public class TemplateConceptTransformService {
 				definitionStatus =  org.ihtsdo.otf.rest.client.terminologyserver.pojo.DefinitionStatus.FULLY_DEFINED;
 			}
 			transformed.setDefinitionStatus(definitionStatus);
-			RelationshipTransformer relationShipTransformer = new RelationshipTransformer(transformed, conceptTemplate.getConceptOutline(), attributeSlotValueMap, inputData.getConceptIdMap());
+			RelationshipTransformer relationShipTransformer = new RelationshipTransformer(transformed, conceptTemplate.getConceptOutline(), slotToAttributeValuesMap, inputData.getConceptIdMap());
 			relationShipTransformer.transform();
 		}
 		
 		if (inputData.getTransformRequest().isLexicalTransform()) {
-			Map<String, Set<DescriptionPojo>> slotDescriptionsMap = getSlotDescriptionValuesMap(inputData.getBranchPath(), attributeSlotValueMap, restClient);
+			Map<String, Set<DescriptionPojo>> slotDescriptionsMap = getSlotDescriptionValuesMap(inputData.getBranchPath(), slotToAttributeValuesMap, restClient);
 			DescriptionTransformer transformer = new DescriptionTransformer(transformed, conceptTemplate, slotDescriptionsMap, 
 					inputData.getTransformRequest().getInactivationReason());
 			transformer.transform();
@@ -218,23 +218,18 @@ public class TemplateConceptTransformService {
 		return transformed;
 	}
 
-	private Map<String, ConceptMiniPojo> constructSlotToTargetValueMap(TransformationInputData inputData, ConceptPojo conceptPojo, SnowOwlRestClient restClient) throws RestClientException {
+	private Map<String, List<ConceptMiniPojo>> constructSlotToTargetValuesMap(TransformationInputData inputData, ConceptPojo conceptPojo, SnowOwlRestClient restClient) throws RestClientException {
 		Map<String, Set<ConceptMiniPojo>> slotToAttrbuteValuesMap = TemplateUtil.getSlotNameToAttributeValueMap(inputData.getDestinationSlotToAttributeMap(), conceptPojo);
 		// validate using attribute slot range when there is more than one value for a given slot
-		Map<String, ConceptMiniPojo> slotToValuesMap = new HashMap<>();
+		Map<String, List<ConceptMiniPojo>> slotToValuesMap = new HashMap<>();
 		for (String slot : slotToAttrbuteValuesMap.keySet()) {
 			List<String> conceptIds = slotToAttrbuteValuesMap.get(slot).stream().map(ConceptMiniPojo :: getConceptId).collect(Collectors.toList());
-			if (conceptIds.size() > 1) {
-				String rangeEcl = TemplateUtil.constructRangeValidationEcl(inputData.getDestinationSlotToAttributeMap().get(slot).getAllowableRangeECL().trim(), conceptIds);
-				Set<String> conceptsWithinRange = restClient.eclQuery(inputData.getBranchPath(), rangeEcl, conceptIds.size());
-				for (ConceptMiniPojo pojo : slotToAttrbuteValuesMap.get(slot)) {
-					if (conceptsWithinRange.contains(pojo.getConceptId())) {
-						slotToValuesMap.put(slot, pojo);
-						break;
-					}
+			String rangeEcl = TemplateUtil.constructRangeValidationEcl(inputData.getDestinationSlotToAttributeMap().get(slot).getAllowableRangeECL().trim(), conceptIds);
+			Set<String> conceptsWithinRange = restClient.eclQuery(inputData.getBranchPath(), rangeEcl, conceptIds.size());
+			for (ConceptMiniPojo pojo : slotToAttrbuteValuesMap.get(slot)) {
+				if (conceptsWithinRange.contains(pojo.getConceptId())) {
+					slotToValuesMap.computeIfAbsent(slot, slotValues -> new ArrayList<>()).add(pojo);
 				}
-			} else {
-				slotToValuesMap.put(slot, slotToAttrbuteValuesMap.get(slot).iterator().next());
 			}
 		}
 		return slotToValuesMap;
@@ -295,10 +290,15 @@ public class TemplateConceptTransformService {
 	}
 
 	private Map<String, Set<DescriptionPojo>> getSlotDescriptionValuesMap(String branchPath, 
-			Map<String, ConceptMiniPojo> attributeSlotMap, SnowOwlRestClient restClient) throws ServiceException {
+			Map<String, List<ConceptMiniPojo>> attributeSlotMap, SnowOwlRestClient restClient) throws ServiceException {
 
 		Map<String, Set<DescriptionPojo>> slotDescriptionMap = new HashMap<>();
-		List<String> conceptIds = attributeSlotMap.values().stream().map(ConceptMiniPojo::getConceptId).collect(Collectors.toList());
+		List<String> conceptIds = new ArrayList<>();
+		for (String slot : attributeSlotMap.keySet()) {
+			for (ConceptMiniPojo pojo : attributeSlotMap.get(slot)) {
+				conceptIds.add(pojo.getConceptId());
+			}
+		}
 		List<ConceptPojo> results;
 		try {
 			results = restClient.searchConcepts(branchPath, conceptIds);
@@ -310,9 +310,11 @@ public class TemplateConceptTransformService {
 			conceptPojoMap.put(pojo.getConceptId(), pojo);
 		}
 		for (String slot : attributeSlotMap.keySet()) {
-			ConceptPojo pojo = conceptPojoMap.get(attributeSlotMap.get(slot).getConceptId());
-			if (pojo != null) {
-				slotDescriptionMap.put(slot, conceptPojoMap.get(attributeSlotMap.get(slot).getConceptId()).getDescriptions());
+			for (ConceptMiniPojo miniPojo : attributeSlotMap.get(slot)) {
+				ConceptPojo pojo = conceptPojoMap.get(miniPojo.getConceptId());
+				if (pojo != null) {
+					slotDescriptionMap.put(slot, pojo.getDescriptions());
+				}
 			}
 		}
 		return slotDescriptionMap;

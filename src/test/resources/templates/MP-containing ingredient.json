@@ -1,0 +1,38 @@
+{
+  "name": "MP-containing ingredient",
+  "domain": "<763158003 |Medicinal product (product)|",
+  "version": 1,
+  "logicalTemplate": "763158003 |Medicinal product (product)|:\n[[~1..*]]\n\t{\n\t\t127489000 |Has active ingredient (attribute)| = [[+id(<105590001 |Substance (substance)|) @substance]]\n\t}\n",
+  "conceptOutline": {
+    "definitionStatus": "FULLY_DEFINED",
+    "descriptions": [
+      {
+        "type": "FSN",
+        "lang": "en",
+        "termTemplate": "Product containing $substance$ (medicinal product)",
+        "caseSignificance": "CASE_INSENSITIVE",
+        "acceptabilityMap": {
+          "900000000000508004": "PREFERRED",
+          "900000000000509007": "PREFERRED"
+        }
+      },
+      {
+        "type": "SYNONYM",
+        "lang": "en",
+        "termTemplate": "$substance$-containing product",
+        "caseSignificance": "CASE_INSENSITIVE",
+        "acceptabilityMap": {
+          "900000000000508004": "PREFERRED",
+          "900000000000509007": "PREFERRED"
+        }
+      }
+    ]
+  },
+  "lexicalTemplates": [
+    {
+      "name": "substance",
+      "displayName": "[substance]",
+      "takeFSNFromSlot": "substance"
+    }
+  ]
+}

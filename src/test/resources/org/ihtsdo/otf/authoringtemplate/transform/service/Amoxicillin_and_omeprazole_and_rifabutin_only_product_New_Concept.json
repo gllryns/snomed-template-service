@@ -1,5 +1,5 @@
 {
-  "conceptId": "263078002",
+  "conceptId": "830066004",
   "released": false,
   "active": true,
   "moduleId": "900000000000207008",
@@ -7,25 +7,25 @@
   "descriptions": [],
   "classAxioms": [
     {
-      "axiomId": "08bb334c-f120-4e0b-b63c-40c3e0e332c7",
+      "axiomId": "eee33eea-0d6a-46db-a102-e74909a3d6d8",
       "moduleId": "900000000000207008",
       "active": true,
-      "released": true,
+      "released": false,
       "definitionStatusId": "900000000000073002",
       "relationships": [
         {
           "active": true,
           "released": false,
           "moduleId": "900000000000207008",
-          "sourceId": "263078002",
+          "sourceId": "830066004",
           "target": {
-            "conceptId": "64572001",
+            "conceptId": "763158003",
             "fsn": {
-              "term": "Disease (disorder)",
+              "term": "Medicinal product (product)",
               "lang": "en"
             },
             "pt": {
-              "term": "Disease",
+              "term": "Medicinal product",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
@@ -50,28 +50,28 @@
           "active": true,
           "released": false,
           "moduleId": "900000000000207008",
-          "sourceId": "263078002",
+          "sourceId": "830066004",
           "target": {
-            "conceptId": "773760007",
+            "conceptId": "385268001",
             "fsn": {
-              "term": "Traumatic event (event)",
+              "term": "Oral dose form (dose form)",
               "lang": "en"
             },
             "pt": {
-              "term": "Traumatic event",
+              "term": "Oral dose form",
               "lang": "en"
             },
-            "definitionStatus": "PRIMITIVE"
+            "definitionStatus": "FULLY_DEFINED"
           },
-          "groupId": 3,
+          "groupId": 0,
           "type": {
-            "conceptId": "42752001",
+            "conceptId": "411116001",
             "fsn": {
-              "term": "Due to (attribute)",
+              "term": "Has manufactured dose form (attribute)",
               "lang": "en"
             },
             "pt": {
-              "term": "Due to",
+              "term": "Has manufactured dose form",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
@@ -83,28 +83,61 @@
           "active": true,
           "released": false,
           "moduleId": "900000000000207008",
-          "sourceId": "263078002",
+          "sourceId": "830066004",
           "target": {
-            "conceptId": "16953009",
+            "conceptId": "79605009",
             "fsn": {
-              "term": "Elbow joint structure (body structure)",
+              "term": "3 (qualifier value)",
               "lang": "en"
             },
             "pt": {
-              "term": "Elbow joint structure",
+              "term": "3",
+              "lang": "en"
+            },
+            "definitionStatus": "PRIMITIVE"
+          },
+          "groupId": 0,
+          "type": {
+            "conceptId": "766952006",
+            "fsn": {
+              "term": "Count of base of active ingredient (attribute)",
+              "lang": "en"
+            },
+            "pt": {
+              "term": "Count of base of active ingredient",
+              "lang": "en"
+            },
+            "definitionStatus": "PRIMITIVE"
+          },
+          "characteristicType": "STATED_RELATIONSHIP",
+          "modifier": "EXISTENTIAL"
+        },
+        {
+          "active": true,
+          "released": false,
+          "moduleId": "900000000000207008",
+          "sourceId": "830066004",
+          "target": {
+            "conceptId": "372687004",
+            "fsn": {
+              "term": "Amoxicillin (substance)",
+              "lang": "en"
+            },
+            "pt": {
+              "term": "Amoxicillin",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
           },
           "groupId": 2,
           "type": {
-            "conceptId": "363698007",
+            "conceptId": "127489000",
             "fsn": {
-              "term": "Finding site (attribute)",
+              "term": "Has active ingredient (attribute)",
               "lang": "en"
             },
             "pt": {
-              "term": "Finding site",
+              "term": "Has active ingredient",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
@@ -116,61 +149,28 @@
           "active": true,
           "released": false,
           "moduleId": "900000000000207008",
-          "sourceId": "263078002",
+          "sourceId": "830066004",
           "target": {
-            "conceptId": "87642003",
+            "conceptId": "387137007",
             "fsn": {
-              "term": "Dislocation (morphologic abnormality)",
+              "term": "Omeprazole (substance)",
               "lang": "en"
             },
             "pt": {
-              "term": "Dislocation",
-              "lang": "en"
-            },
-            "definitionStatus": "PRIMITIVE"
-          },
-          "groupId": 2,
-          "type": {
-            "conceptId": "116676008",
-            "fsn": {
-              "term": "Associated morphology (attribute)",
-              "lang": "en"
-            },
-            "pt": {
-              "term": "Associated morphology",
-              "lang": "en"
-            },
-            "definitionStatus": "PRIMITIVE"
-          },
-          "characteristicType": "STATED_RELATIONSHIP",
-          "modifier": "EXISTENTIAL"
-        },
-        {
-          "active": true,
-          "released": false,
-          "moduleId": "900000000000207008",
-          "sourceId": "263078002",
-          "target": {
-            "conceptId": "305016004",
-            "fsn": {
-              "term": "Periarticular bone structure of elbow joint (body structure)",
-              "lang": "en"
-            },
-            "pt": {
-              "term": "Periarticular bone structure of elbow joint",
+              "term": "Omeprazole",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
           },
           "groupId": 1,
           "type": {
-            "conceptId": "363698007",
+            "conceptId": "127489000",
             "fsn": {
-              "term": "Finding site (attribute)",
+              "term": "Has active ingredient (attribute)",
               "lang": "en"
             },
             "pt": {
-              "term": "Finding site",
+              "term": "Has active ingredient",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
@@ -182,28 +182,28 @@
           "active": true,
           "released": false,
           "moduleId": "900000000000207008",
-          "sourceId": "263078002",
+          "sourceId": "830066004",
           "target": {
-            "conceptId": "72704001",
+            "conceptId": "386893001",
             "fsn": {
-              "term": "Fracture (morphologic abnormality)",
+              "term": "Rifabutin (substance)",
               "lang": "en"
             },
             "pt": {
-              "term": "Fracture",
+              "term": "Rifabutin",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"
           },
           "groupId": 1,
           "type": {
-            "conceptId": "116676008",
+            "conceptId": "127489000",
             "fsn": {
-              "term": "Associated morphology (attribute)",
+              "term": "Has active ingredient (attribute)",
               "lang": "en"
             },
             "pt": {
-              "term": "Associated morphology",
+              "term": "Has active ingredient",
               "lang": "en"
             },
             "definitionStatus": "PRIMITIVE"

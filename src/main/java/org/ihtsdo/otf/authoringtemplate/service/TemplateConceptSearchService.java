@@ -44,7 +44,7 @@ public class TemplateConceptSearchService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConceptSearchService.class);
 
-	private static final int MAX = 200000;
+	private static final int MAX = 10_000;
 	
 	public Set<String> searchConceptsByTemplate(String templateName, String branchPath, 
 			Boolean logicalMatch, Boolean lexicalMatch, boolean stated) throws ServiceException, ResourceNotFoundException {
@@ -83,15 +83,6 @@ public class TemplateConceptSearchService {
 			LOGGER.info("No results found for logical search.");
 			return result;
 		}
-
-		// TODO Remove unused code? Should it be used?
-//		List<Description> descriptions = conceptTemplate.getConceptOutline().getDescriptions();
-//		List<Pattern> patterns = new ArrayList<>();
-//		for (Description description : descriptions) {
-//			if (description.getTermTemplate() != null) {
-//				patterns.add(TemplateUtil.constructTermPattern(description.getTermTemplate()));
-//			}
-//		}
 
 		Map<Pattern, Set<String>> fsnPatternSlotsMap = TemplateUtil.compilePatterns(
 				TemplateUtil.getTermTemplates(conceptTemplate, DescriptionType.FSN));

@@ -25,7 +25,7 @@ public class RelationshipTransformer {
 
 	private ConceptPojo conceptToTransform;
 	private ConceptOutline conceptOutline;
-	private Map<String, ConceptMiniPojo> attributeSlotMap;
+	private Map<String, List<ConceptMiniPojo>> slotToAttributeValuesMap;
 	private Map<String, ConceptMiniPojo> conceptIdMap;
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -39,10 +39,10 @@ public class RelationshipTransformer {
 			.thenComparing(RelationshipPojo::getTarget, Comparator.comparing(ConceptMiniPojo::getConceptId, Comparator.nullsFirst(String::compareTo)));
 
 	public RelationshipTransformer(ConceptPojo conceptToTransform, ConceptOutline conceptOutline,
-			Map<String, ConceptMiniPojo> attributeSlotMap, Map<String, ConceptMiniPojo> conceptIdMap) {
+			Map<String, List<ConceptMiniPojo>> attributeSlotValuesMap, Map<String, ConceptMiniPojo> conceptIdMap) {
 		this.conceptToTransform = conceptToTransform;
 		this.conceptOutline = conceptOutline;
-		this.attributeSlotMap = attributeSlotMap;
+		this.slotToAttributeValuesMap = attributeSlotValuesMap;
 		this.conceptIdMap = conceptIdMap;
 	}
 
@@ -67,6 +67,7 @@ public class RelationshipTransformer {
 
 		Map<Integer, Map<String, Relationship>> newRelGroupMap = new HashMap<>();
 		List<Relationship> relationships = conceptOutline.getClassAxioms().stream().findFirst().get().getRelationships();
+		Map<String, Integer> slotValueCounterMap = new HashMap<>();
 		
 		for (Relationship rel : relationships) {
 			Map<String, Relationship> groupMap = newRelGroupMap.computeIfAbsent(rel.getGroupId(), k -> new HashMap<>());
@@ -76,7 +77,8 @@ public class RelationshipTransformer {
 				// Handle relationship with slot
 				if (rel.getTargetSlot() != null) {
 					String slot = rel.getTargetSlot().getSlotName();
-					ConceptMiniPojo target = attributeSlotMap.get(slot);
+					slotValueCounterMap.computeIfAbsent(slot, v -> -1);
+					ConceptMiniPojo target = slotToAttributeValuesMap.get(slot).get(slotValueCounterMap.get(slot) + 1);
 					if (target == null) {
 						if (TemplateUtil.isOptional(rel)) {
 							continue;
@@ -155,7 +157,7 @@ public class RelationshipTransformer {
 				} else {
 					// No need to remove new relationship as it is not published
 					Relationship relationship = newRelMapByTargetAndType.get(key).iterator().next();
-					pojoSet.add(constructRelationshipPojo(relationship, attributeSlotMap));
+					pojoSet.add(constructRelationshipPojo(relationship));
 				}
 			}
 			mergedSet.add(pojoSet);
@@ -163,7 +165,7 @@ public class RelationshipTransformer {
 		return mergedSet;
 	}
 
-	private RelationshipPojo constructRelationshipPojo(Relationship relationship, Map<String, ConceptMiniPojo> attributeSlotMap) throws ServiceException {
+	private RelationshipPojo constructRelationshipPojo(Relationship relationship) throws ServiceException {
 		RelationshipPojo pojo = new RelationshipPojo();
 		pojo.setActive(true);
 		pojo.setCharacteristicType(relationship.getCharacteristicType());
@@ -174,11 +176,7 @@ public class RelationshipTransformer {
 			pojo.setTarget(constructConceptMiniPojo(relationship.getTarget().getConceptId()));
 		} else {
 			if (relationship.getTargetSlot() != null) {
-				ConceptMiniPojo target = attributeSlotMap.get(relationship.getTargetSlot().getSlotName());
-				if (target == null) {
-					throw new ServiceException("Fail to find attribute slot value " + relationship.getTargetSlot().getSlotName());
-				}
-				pojo.setTarget(target);
+				throw new ServiceException("Fail to find attribute slot value " + relationship.getTargetSlot().getSlotName());
 			} 
 		}
 		pojo.setType(constructConceptMiniPojo(relationship.getType().getConceptId()));

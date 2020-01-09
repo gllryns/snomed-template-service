@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.authoringtemplate.transform;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,8 @@ public class RelationshipTransformerTest {
 		ConceptPojo conceptToTransform = TestDataHelper.createConceptPojo();
 		assertEquals(1, conceptToTransform.getClassAxioms().size());
 		ConceptOutline conceptOutline = TestDataHelper.createConceptOutline();
-		Map<String, ConceptMiniPojo> attributeSlotMap = new HashMap<>();
-		attributeSlotMap.put("substance", new ConceptMiniPojo("256350002"));
+		Map<String, List<ConceptMiniPojo>> attributeSlotMap = new HashMap<>();
+		attributeSlotMap.put("substance", Collections.singletonList(new ConceptMiniPojo("256350002")));
 		transformer = new RelationshipTransformer(conceptToTransform, conceptOutline, attributeSlotMap, new HashMap<String, ConceptMiniPojo>());
 		transformer.transform();
 		AxiomPojo classAxiom = conceptToTransform.getClassAxioms().iterator().next();

@@ -6,7 +6,6 @@ import org.apache.commons.io.FileUtils;
 import org.ihtsdo.otf.authoringtemplate.service.AbstractServiceTest;
 import org.ihtsdo.otf.authoringtemplate.service.Constants;
 import org.ihtsdo.otf.authoringtemplate.service.JsonStore;
-import org.ihtsdo.otf.authoringtemplate.service.TemplateUtil;
 import org.ihtsdo.otf.authoringtemplate.service.exception.ServiceException;
 import org.ihtsdo.otf.authoringtemplate.transform.TemplateTransformRequest;
 import org.ihtsdo.otf.authoringtemplate.transform.TemplateTransformation;
@@ -15,13 +14,11 @@ import org.ihtsdo.otf.authoringtemplate.transform.TransformationResult;
 import org.ihtsdo.otf.rest.client.RestClientException;
 import org.ihtsdo.otf.rest.client.terminologyserver.SnowOwlRestClient;
 import org.ihtsdo.otf.rest.client.terminologyserver.pojo.*;
-import org.ihtsdo.otf.rest.client.terminologyserver.pojo.ConceptMiniPojo.DescriptionMiniPojo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.OngoingStubbing;
-import org.snomed.authoringtemplate.domain.CaseSignificance;
 import org.snomed.authoringtemplate.domain.ConceptTemplate;
 import org.snomed.authoringtemplate.domain.DescriptionType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +39,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -167,7 +163,7 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		}
 		Set<ConceptMiniPojo> targets = relationships.stream().filter(RelationshipPojo::isActive).map(RelationshipPojo::getTarget).collect(Collectors.toSet());
 		for (ConceptMiniPojo targetPojo : targets) {
-			concepts.add(constructConceptPojo(targetPojo));
+			concepts.add(TestDataHelper.constructConceptPojo(targetPojo));
 		}
 		
 		// Mock two method calls. One is used in template concept search and one in the transformation service
@@ -184,73 +180,9 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		Set<ConceptMiniPojo> conceptMinis = new HashSet<>();
 		conceptMinis.addAll(targets);
 		conceptMinis.addAll(attributeTypes);
-		conceptMinis.addAll(constructTestData());
+		conceptMinis.addAll(TestDataHelper.constructTestData());
 		when(terminologyServerClient.getConceptMinis(anyString(), any(), anyInt()))
 		.thenReturn(conceptMinis);
-	}
-
-	private ConceptMiniPojo constructConceptMiniPojo (String conceptId, String fsn) {
-		ConceptMiniPojo pojo = new ConceptMiniPojo(conceptId);
-		pojo.setFsn(new DescriptionMiniPojo(fsn, "en"));
-		String pt = fsn.substring(0, fsn.indexOf("(")).trim();
-		pojo.setPt(new DescriptionMiniPojo(pt, "en"));
-		return pojo;
-	}
-	
-	private Set<ConceptMiniPojo> constructTestData() {
-		Set<ConceptMiniPojo> concepts = new HashSet<>();
-		concepts.add(constructConceptMiniPojo("719722006", "Has realization (attribute)"));
-		concepts.add(constructConceptMiniPojo("420134006", "Propensity to adverse reaction (finding)"));
-		concepts.add(constructConceptMiniPojo("281647001", "Adverse reaction (disorder)"));
-		concepts.add(constructConceptMiniPojo("472964009", "Allergic process (qualifier value)"));
-		concepts.add(constructConceptMiniPojo("272691005", "Bone structure of shoulder girdle (body structure)"));
-		concepts.add(constructConceptMiniPojo("773760007", "Traumatic event (event)"));
-		concepts.add(constructConceptMiniPojo("72704001", "Fracture (morphologic abnormality)"));
-		return concepts;
-	}
-
-	private ConceptPojo constructConceptPojo(ConceptMiniPojo conceptMini) {
-		ConceptPojo pojo = new ConceptPojo();
-		pojo.setActive(true);
-		pojo.setConceptId(conceptMini.getConceptId());
-		pojo.setDefinitionStatus(DefinitionStatus.valueOf(conceptMini.getDefinitionStatus()));
-		pojo.setModuleId(conceptMini.getModuleId());
-		Set<DescriptionPojo> descriptions = new HashSet<>();
-		pojo.setDescriptions(descriptions);
-		
-		DescriptionPojo inactiveFsnPojo = new DescriptionPojo();
-		inactiveFsnPojo.setActive(false);
-		inactiveFsnPojo.setTerm("inactive_" + conceptMini.getFsn() );
-		inactiveFsnPojo.setCaseSignificance(CaseSignificance.ENTIRE_TERM_CASE_SENSITIVE.name());
-		inactiveFsnPojo.setType(DescriptionType.FSN.name());
-		descriptions.add(inactiveFsnPojo);
-		
-		DescriptionPojo fsnPojo = new DescriptionPojo();
-		descriptions.add(fsnPojo);
-		fsnPojo.setActive(true);
-		fsnPojo.setTerm(conceptMini.getFsn().getTerm());
-		fsnPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		fsnPojo.setType(DescriptionType.FSN.name());
-		DescriptionPojo ptPojo = new DescriptionPojo();
-		ptPojo.setTerm(TemplateUtil.getDescriptionFromFSN(conceptMini.getFsn().getTerm()));
-		if (ptPojo.getTerm().equals("Aluminium")) {
-			ptPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.ACCEPTABLE, Constants.PREFERRED));
-			DescriptionPojo usPtPojo = new DescriptionPojo();
-			usPtPojo.setTerm("Aluminum");
-			usPtPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.PREFERRED,Constants.ACCEPTABLE));
-			usPtPojo.setActive(true);
-			usPtPojo.setType(DescriptionType.SYNONYM.name());
-			usPtPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-			descriptions.add(usPtPojo);
-			
-		} else {
-			ptPojo.setAcceptabilityMap(TestDataHelper.constructAcceptabilityMap(Constants.PREFERRED, Constants.PREFERRED));
-		}
-		ptPojo.setActive(true);
-		ptPojo.setType(DescriptionType.SYNONYM.name());
-		ptPojo.setCaseSignificance(CaseSignificance.CASE_INSENSITIVE.name());
-		descriptions.add(ptPojo);
-		return pojo;
 	}
 
 	@Test
@@ -365,7 +297,24 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		mockSearchAttributeValuesWithinRange("<<87642003 |Dislocation (morphologic abnormality)|", Collections.singletonList("87642003"));
 		mockSearchAttributeValuesWithinRange("<<773760007 |Traumatic event (event)|", Collections.singletonList("773760007"));
 		// invoke the first mock method call
-		terminologyServerClient.searchConcepts("MAIN", new ArrayList<>(Collections.singleton("123")));
+		terminologyServerClient.searchConcepts("MAIN/test", new ArrayList<>(Collections.singleton("123")));
+		ConceptPojo result = transformService.transformConcept("MAIN/test", new TemplateTransformRequest(null, tempalteName),
+				conceptToTransform, terminologyServerClient);
+		verifyTransformation(result);
+	}
+	
+	
+	
+	@Test
+	public void testTransformationWithMutlipleRoleGroups() throws Exception {
+		String tempalteName = "MP-containing ingredient";
+		setUpTemplates(tempalteName);
+		initTestConcepts("Amoxicillin_and_omeprazole_and_rifabutin_only_product_New_Concept.json", "Amoxicillin_and_omeprazole_and_rifabutin_only_product_transformed.json");
+		mockTerminologyServerClient();
+		mockSearchConcepts(true);
+		mockSearchAttributeValuesWithinRange("<105590001 |Substance (substance)|", Arrays.asList("372687004", "387137007", "386893001"));
+		// invoke the first mock method call
+		terminologyServerClient.searchConcepts("MAIN/test", new ArrayList<>(Collections.singleton("123")));
 		ConceptPojo result = transformService.transformConcept("MAIN/test", new TemplateTransformRequest(null, tempalteName),
 				conceptToTransform, terminologyServerClient);
 		verifyTransformation(result);
