@@ -18,6 +18,7 @@ import org.ihtsdo.otf.rest.client.terminologyserver.pojo.ConceptPojo;
 import org.ihtsdo.otf.rest.client.terminologyserver.pojo.RelationshipPojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snomed.authoringtemplate.domain.ConceptMini;
 import org.snomed.authoringtemplate.domain.ConceptOutline;
 import org.snomed.authoringtemplate.domain.Relationship;
 
@@ -77,16 +78,18 @@ public class RelationshipTransformer {
 				// Handle relationship with slot
 				if (rel.getTargetSlot() != null) {
 					String slot = rel.getTargetSlot().getSlotName();
+					if (!slotToAttributeValuesMap.containsKey(slot)) {
+						throw new ServiceException("Failed to find attribute value for slot name " + slot);
+					}
 					slotValueCounterMap.computeIfAbsent(slot, v -> -1);
 					ConceptMiniPojo target = slotToAttributeValuesMap.get(slot).get(slotValueCounterMap.get(slot) + 1);
 					if (target == null) {
 						if (TemplateUtil.isOptional(rel)) {
 							continue;
-						} else {
-							throw new ServiceException("Failed to find attribute value for slot name " + slot);
 						}
 					}
 					String key = target.getConceptId() + "_" + rel.getType().getConceptId();
+					rel.setTarget(new ConceptMini(target.getConceptId()));
 					groupMap.put(key, rel);
 				}
 			}

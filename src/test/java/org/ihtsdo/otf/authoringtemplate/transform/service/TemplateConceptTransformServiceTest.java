@@ -57,7 +57,7 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 	private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	
 	// set it to true to print out concept in json
-	private boolean isDebug = false;
+	private boolean isDebug = true;
 	
 	private TemplateTransformRequest transformRequest;
 	
@@ -107,6 +107,7 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		initTestConcepts("Allergy_To_Almond_Concept.json", "Allergy_To_Almond_Concept_Trasformed.json");
 		mockTerminologyServerClient();
 		mockSearchConcepts(false);
+		mockSearchAttributeValuesWithinRange("<105590001 |Substance (substance)|", Arrays.asList("256350002"));
 		
 		transformRequest.setConceptsToTransform(Collections.singleton("712839001"));
 		transformRequest.setInactivationReason("ERRONEOUS");
@@ -193,6 +194,7 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		initTestConcepts("Allergic_Reaction_Caused_By_Adhesive_Concept.json", "Allergic_Reaction_Caused_By_Adhesive_Concept_Transformed.json");
 		mockTerminologyServerClient();
 		mockSearchConcepts(false);
+		mockSearchAttributeValuesWithinRange("<105590001 |Substance (substance)|", Arrays.asList("418920007"));
 		
 		TemplateTransformRequest transformRequest = new TemplateTransformRequest(source, destination);
 		transformRequest.setConceptsToTransform(Collections.singleton("418325008"));
@@ -247,6 +249,7 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		initTestConcepts("Allergy_to_Aluminium_Concept.json", "Allergy_to_Aluminium_Concept_Transformed.json");
 		mockTerminologyServerClient();
 		mockSearchConcepts(false);
+		mockSearchAttributeValuesWithinRange("<105590001 |Substance (substance)|", Arrays.asList("12503006"));
 		
 		transformRequest.setConceptsToTransform(Collections.singleton("402306009"));
 		TemplateTransformation transformation = new TemplateTransformation("MAIN", transformRequest);
@@ -272,6 +275,7 @@ public class TemplateConceptTransformServiceTest extends AbstractServiceTest {
 		concepts.add("402306009");
 		mockTerminologyServerClient();
 		mockSearchConcepts(true);
+		mockSearchAttributeValuesWithinRange("<105590001 |Substance (substance)|", Arrays.asList("12503006"));
 		
 		transformRequest = new TemplateTransformRequest(null, destination);
 		ConceptPojo result = transformService.transformConcept("MAIN", transformRequest, conceptToTransform, terminologyServerClient);

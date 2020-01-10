@@ -1,278 +1,116 @@
 {
-"conceptId": "830066004",
-"fsn": {},
-"pt": {},
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"definitionStatus": "FULLY_DEFINED",
-"descriptions": [
-{
-"active": true,
-"released": false,
-"term": "Product containing only amoxicillin and omeprazole and rifabutin in oral dose form (medicinal product form)",
-"conceptId": "830066004",
-"moduleId": "900000000000207008",
-"typeId": "900000000000003001",
-"acceptabilityMap": {
-"900000000000509007": "PREFERRED",
-"900000000000508004": "PREFERRED"
-},
-"type": "FSN",
-"lang": "en",
-"caseSignificance": "CASE_INSENSITIVE"
-},
-{
-"active": true,
-"released": false,
-"term": "Amoxicillin and omeprazole and rifabutin only product in oral dose form",
-"conceptId": "830066004",
-"moduleId": "900000000000207008",
-"typeId": "900000000000013009",
-"acceptabilityMap": {
-"900000000000509007": "PREFERRED",
-"900000000000508004": "PREFERRED"
-},
-"type": "SYNONYM",
-"lang": "en",
-"caseSignificance": "CASE_INSENSITIVE"
-}
-],
-"classAxioms": [
-{
-"axiomId": "eee33eea-0d6a-46db-a102-e74909a3d6d8",
-"moduleId": "900000000000207008",
-"active": true,
-"released": false,
-"definitionStatusId": "900000000000073002",
-"relationships": [
-{
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"sourceId": "830066004",
-"destinationId": "763158003",
-"typeId": "116680003",
-"type": {
-"conceptId": "116680003",
-"id": "116680003",
-"pt": {
-"term": "Is a",
-"lang": "en"
-},
-"fsn": {
-"term": "Is a (attribute)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"target": {
-"conceptId": "763158003",
-"id": "763158003",
-"pt": {
-"term": "Medicinal product",
-"lang": "en"
-},
-"fsn": {
-"term": "Medicinal product (product)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"groupId": 0,
-"modifier": "EXISTENTIAL",
-"characteristicType": "STATED_RELATIONSHIP"
-},
-{
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"sourceId": "830066004",
-"destinationId": "385268001",
-"typeId": "411116001",
-"type": {
-"conceptId": "411116001",
-"id": "411116001",
-"pt": {
-"term": "Has manufactured dose form",
-"lang": "en"
-},
-"fsn": {
-"term": "Has manufactured dose form (attribute)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"target": {
-"conceptId": "385268001",
-"id": "385268001",
-"pt": {
-"term": "Oral dose form",
-"lang": "en"
-},
-"fsn": {
-"term": "Oral dose form (dose form)",
-"lang": "en"
-},
-"definitionStatus": "FULLY_DEFINED"
-},
-"groupId": 0,
-"modifier": "EXISTENTIAL",
-"characteristicType": "STATED_RELATIONSHIP"
-},
-{
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"sourceId": "830066004",
-"destinationId": "79605009",
-"typeId": "766952006",
-"type": {
-"conceptId": "766952006",
-"id": "766952006",
-"pt": {
-"term": "Count of base of active ingredient",
-"lang": "en"
-},
-"fsn": {
-"term": "Count of base of active ingredient (attribute)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"target": {
-"conceptId": "79605009",
-"id": "79605009",
-"pt": {
-"term": "3",
-"lang": "en"
-},
-"fsn": {
-"term": "3 (qualifier value)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"groupId": 0,
-"modifier": "EXISTENTIAL",
-"characteristicType": "STATED_RELATIONSHIP"
-},
-{
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"sourceId": "830066004",
-"destinationId": "372687004",
-"typeId": "127489000",
-"type": {
-"conceptId": "127489000",
-"id": "127489000",
-"pt": {
-"term": "Has active ingredient",
-"lang": "en"
-},
-"fsn": {
-"term": "Has active ingredient (attribute)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"target": {
-"conceptId": "372687004",
-"id": "372687004",
-"pt": {
-"term": "Amoxicillin",
-"lang": "en"
-},
-"fsn": {
-"term": "Amoxicillin (substance)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"groupId": 2,
-"modifier": "EXISTENTIAL",
-"characteristicType": "STATED_RELATIONSHIP"
-},
-{
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"sourceId": "830066004",
-"destinationId": "387137007",
-"typeId": "127489000",
-"type": {
-"conceptId": "127489000",
-"id": "127489000",
-"pt": {
-"term": "Has active ingredient",
-"lang": "en"
-},
-"fsn": {
-"term": "Has active ingredient (attribute)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"target": {
-"conceptId": "387137007",
-"id": "387137007",
-"pt": {
-"term": "Omeprazole",
-"lang": "en"
-},
-"fsn": {
-"term": "Omeprazole (substance)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"groupId": 1,
-"modifier": "EXISTENTIAL",
-"characteristicType": "STATED_RELATIONSHIP"
-},
-{
-"active": true,
-"released": false,
-"moduleId": "900000000000207008",
-"sourceId": "830066004",
-"destinationId": "386893001",
-"typeId": "127489000",
-"type": {
-"conceptId": "127489000",
-"id": "127489000",
-"pt": {
-"term": "Has active ingredient",
-"lang": "en"
-},
-"fsn": {
-"term": "Has active ingredient (attribute)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"target": {
-"conceptId": "386893001",
-"id": "386893001",
-"pt": {
-"term": "Rifabutin",
-"lang": "en"
-},
-"fsn": {
-"term": "Rifabutin (substance)",
-"lang": "en"
-},
-"definitionStatus": "PRIMITIVE"
-},
-"groupId": 1,
-"modifier": "EXISTENTIAL",
-"characteristicType": "STATED_RELATIONSHIP"
-}
-],
-"id": "eee33eea-0d6a-46db-a102-e74909a3d6d8",
-"definitionStatus": "FULLY_DEFINED"
-}
-],
-"gciAxioms": [],
-"relationships": []
+  "conceptId": "830066004",
+  "released": false,
+  "active": true,
+  "moduleId": "900000000000207008",
+  "definitionStatus": "FULLY_DEFINED",
+  "descriptions": [
+    {
+      "active": true,
+      "released": false,
+      "term": "Product containing amoxicillin and omeprazole and rifabutin (medicinal product)",
+      "conceptId": "830066004",
+      "moduleId": "900000000000207008",
+      "lang": "en",
+      "type": "FSN",
+      "caseSignificance": "CASE_INSENSITIVE",
+      "acceptabilityMap": {
+        "900000000000508004": "PREFERRED",
+        "900000000000509007": "PREFERRED"
+      }
+    },
+    {
+      "active": true,
+      "released": false,
+      "term": "Product containing amoxicillin and omeprazole and rifabutin",
+      "conceptId": "830066004",
+      "moduleId": "900000000000207008",
+      "lang": "en",
+      "type": "SYNONYM",
+      "caseSignificance": "CASE_INSENSITIVE",
+      "acceptabilityMap": {
+        "900000000000509007": "PREFERRED",
+        "900000000000508004": "PREFERRED"
+      }
+    }
+  ],
+  "classAxioms": [
+    {
+      "axiomId": "eee33eea-0d6a-46db-a102-e74909a3d6d8",
+      "moduleId": "900000000000207008",
+      "active": true,
+      "released": false,
+      "definitionStatusId": "900000000000073002",
+      "relationships": [
+        {
+          "active": true,
+          "released": false,
+          "moduleId": "900000000000207008",
+          "sourceId": "830066004",
+          "target": {
+            "conceptId": "372687004",
+            "fsn": {
+              "term": "Amoxicillin (substance)",
+              "lang": "en"
+            },
+            "pt": {
+              "term": "Amoxicillin",
+              "lang": "en"
+            },
+            "definitionStatus": "PRIMITIVE"
+          },
+          "groupId": 2,
+          "type": {
+            "conceptId": "127489000",
+            "fsn": {
+              "term": "Has active ingredient (attribute)",
+              "lang": "en"
+            },
+            "pt": {
+              "term": "Has active ingredient",
+              "lang": "en"
+            },
+            "definitionStatus": "PRIMITIVE"
+          },
+          "characteristicType": "STATED_RELATIONSHIP",
+          "modifier": "EXISTENTIAL"
+        },
+        {
+          "active": true,
+          "released": false,
+          "moduleId": "900000000000207008",
+          "sourceId": "830066004",
+          "target": {
+            "conceptId": "763158003",
+            "fsn": {
+              "term": "Medicinal product (product)",
+              "lang": "en"
+            },
+            "pt": {
+              "term": "Medicinal product",
+              "lang": "en"
+            },
+            "definitionStatus": "PRIMITIVE"
+          },
+          "groupId": 0,
+          "type": {
+            "conceptId": "116680003",
+            "fsn": {
+              "term": "Is a (attribute)",
+              "lang": "en"
+            },
+            "pt": {
+              "term": "Is a",
+              "lang": "en"
+            },
+            "definitionStatus": "PRIMITIVE"
+          },
+          "characteristicType": "STATED_RELATIONSHIP",
+          "modifier": "EXISTENTIAL"
+        }
+      ]
+    }
+  ],
+  "gciAxioms": [],
+  "relationships": []
 }

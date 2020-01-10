@@ -313,7 +313,7 @@ public class TemplateConceptTransformService {
 			for (ConceptMiniPojo miniPojo : attributeSlotMap.get(slot)) {
 				ConceptPojo pojo = conceptPojoMap.get(miniPojo.getConceptId());
 				if (pojo != null) {
-					slotDescriptionMap.put(slot, pojo.getDescriptions());
+					slotDescriptionMap.computeIfAbsent(slot, values -> new HashSet<>()).addAll(pojo.getDescriptions());
 				}
 			}
 		}

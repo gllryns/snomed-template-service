@@ -19,7 +19,7 @@
       {
         "type": "SYNONYM",
         "lang": "en",
-        "termTemplate": "$substance$-containing product",
+        "termTemplate": "Product containing $substance$",
         "caseSignificance": "CASE_INSENSITIVE",
         "acceptabilityMap": {
           "900000000000508004": "PREFERRED",

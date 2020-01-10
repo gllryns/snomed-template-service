@@ -30,13 +30,13 @@ public class LexicalTemplateTransformService {
 			lexicalTemplateMap.put(template.getName(), template);
 		}
 		
-		Map<String, DescriptionPojo> slotFsnValueMap = new HashMap<>();
+		Map<String, List<DescriptionPojo>> slotFsnValueMap = new HashMap<>();
 		for (String slot : slotValueMap.keySet()) {
-			DescriptionPojo fsnPojo = slotValueMap.get(slot).stream()
+			List<DescriptionPojo> fsnPojos = slotValueMap.get(slot).stream()
 					.filter(DescriptionPojo::isActive)
 					.filter(v -> DescriptionType.FSN.name().equals(v.getType()))
-					.findFirst().get();
-			slotFsnValueMap.put(slot, fsnPojo);
+					.collect(Collectors.toList());
+			slotFsnValueMap.put(slot, fsnPojos);
 		}
 		Map<String, List<DescriptionPojo>> slotPtValueMap = new HashMap<>();
 		for (String slot : slotValueMap.keySet()) {
@@ -51,7 +51,7 @@ public class LexicalTemplateTransformService {
 	}
 	
 	private static List<Description> performTransformation(List<Description> descriptions,
-			Map<String, DescriptionPojo> slotFsnValueMap,
+			Map<String, List<DescriptionPojo>> slotFsnValuesMap,
 			Map<String, List<DescriptionPojo>> slotPtValueMap,
 			Map<String, LexicalTemplate> lexicalTemplateMap) throws ServiceException {
 		
@@ -75,23 +75,23 @@ public class LexicalTemplateTransformService {
 				DescriptionPojo fsnPojo;
 				if (template == null) {
 					// Additional slot
-					fsnPojo = slotFsnValueMap.get(slotName); 
+					fsnPojo = slotFsnValuesMap.get(slotName).get(0); 
 					String slotValue = TemplateUtil.getDescriptionFromFSN(fsnPojo);
 					term = term.replace(termSlot, slotValue);
 					termAndCaseSignificanceMap.put(slotValue, fsnPojo.getCaseSignificance());
 				} else {
-					term = applyFsnTransformation(term, template, slotFsnValueMap, termAndCaseSignificanceMap, termSlot);
+					term = applyFsnTransformation(term, template, slotFsnValuesMap, termAndCaseSignificanceMap, termSlot);
 				}
 			}
 			updateFinalCaseSignificanceId(term, termAndCaseSignificanceMap, toTransform);
 			updated.add(toTransform);
 		}
-		updated.addAll(transformPreferredTerms(pts, slotFsnValueMap, slotPtValueMap, lexicalTemplateMap));
+		updated.addAll(transformPreferredTerms(pts, slotFsnValuesMap, slotPtValueMap, lexicalTemplateMap));
 		return updated;
 	}
 
 	private static List<Description> transformPreferredTerms(List<Description> pts,
-			Map<String, DescriptionPojo> slotFsnValueMap, Map<String, List<DescriptionPojo>> slotPtValueMap, Map<String, LexicalTemplate> lexicalTemplateMap) {
+			Map<String, List<DescriptionPojo>> slotFsnValueMap, Map<String, List<DescriptionPojo>> slotPtValueMap, Map<String, LexicalTemplate> lexicalTemplateMap) {
 
 		List<Description> result = new ArrayList<>();
 		for (Description description : pts) {
@@ -110,7 +110,7 @@ public class LexicalTemplateTransformService {
 					DescriptionPojo fsnPojo;
 					if (template == null) {
 						// Additional slot
-						fsnPojo = slotFsnValueMap.get(slotName); 
+						fsnPojo = slotFsnValueMap.get(slotName).get(0); 
 						String slotValue = TemplateUtil.getDescriptionFromFSN(fsnPojo);
 						term = term.replace(termSlot, slotValue);
 						termAndCaseSignificanceMap.put(slotValue, fsnPojo.getCaseSignificance());
@@ -141,35 +141,20 @@ public class LexicalTemplateTransformService {
 	private static String applyPreferredTermTransformation(String term, LexicalTemplate template,
 			Map<String, List<DescriptionPojo>> slotPtValueMap, String refsetId, Map<String, String> termAndCaseSignificanceMap, String termSlot) {
 		
-		DescriptionPojo ptPojo = null;
+		List<DescriptionPojo> ptPojos = new ArrayList<>();
 		if (slotPtValueMap.containsKey(template.getTakeFSNFromSlot())) {
 			for (DescriptionPojo pojo : slotPtValueMap.get(template.getTakeFSNFromSlot())) {
 				if (pojo.getAcceptabilityMap().keySet().contains(refsetId)) {
 					if (Constants.PREFERRED.equals(pojo.getAcceptabilityMap().get(refsetId))) {
-						ptPojo = pojo;
-						break;
+						ptPojos.add(pojo);
 					}
 				}
 			}
 		}
-		if (ptPojo == null) {
+		if (ptPojos.isEmpty()) {
 			term = performTermReplacementWhenSlotIsAbsent(term, template);
 		} else {
-			if (isAdditionalTermReplacementRequired(template, ptPojo.getConceptId())) {
-				term = performTermReplacementWithSlotValuesMatched(term, template);
-			} else {
-				String slotValue = TemplateUtil.getDescriptionFromPT(ptPojo);
-				if (template.getRemoveParts() != null && !template.getRemoveParts().isEmpty()) {
-					for (String partToRemove : template.getRemoveParts()) {
-						slotValue = slotValue.replaceAll(partToRemove, "");
-					}
-					if (CaseSignificance.CASE_INSENSITIVE.name().equals(ptPojo.getCaseSignificance())) {
-						slotValue = StringUtils.uncapitalize(slotValue);
-					}
-				}
-				termAndCaseSignificanceMap.put(slotValue, ptPojo.getCaseSignificance());
-				term = term.replace(termSlot, slotValue);
-			}
+			term = transformTerm(ptPojos, term, template, termAndCaseSignificanceMap, termSlot, false);
 		}
 		return term;
 	}
@@ -195,27 +180,13 @@ public class LexicalTemplateTransformService {
 	}
 
 	private static String applyFsnTransformation(String term, LexicalTemplate template,
-			Map<String, DescriptionPojo> slotFsnValueMap, Map<String, String> termAndCaseSignificanceMap, String termSlot) {
+			Map<String, List<DescriptionPojo>> slotFsnValueMap, Map<String, String> termAndCaseSignificanceMap, String termSlot) {
 
-		DescriptionPojo fsnPojo = slotFsnValueMap.get(template.getTakeFSNFromSlot());
-		if (fsnPojo == null) {
+		List<DescriptionPojo> fsnPojos = slotFsnValueMap.get(template.getTakeFSNFromSlot());
+		if (fsnPojos == null) {
 			term = performTermReplacementWhenSlotIsAbsent(term, template);
 		} else {
-			if (isAdditionalTermReplacementRequired(template, fsnPojo.getConceptId())) {
-				term = performTermReplacementWithSlotValuesMatched(term, template);
-			} else {
-				String slotValue = TemplateUtil.getDescriptionFromFSN(fsnPojo);
-				if (template.getRemoveParts() != null && !template.getRemoveParts().isEmpty()) {
-					for (String partToRemove : template.getRemoveParts()) {
-						slotValue = slotValue.replaceAll(partToRemove, "");
-					}
-					if (CaseSignificance.CASE_INSENSITIVE.name().equals(fsnPojo.getCaseSignificance())) {
-						slotValue = StringUtils.uncapitalize(slotValue);
-					}
-				}
-				termAndCaseSignificanceMap.put(slotValue, fsnPojo.getCaseSignificance());
-				term = term.replace(termSlot, slotValue);
-			}
+			term = transformTerm(fsnPojos, term, template, termAndCaseSignificanceMap, termSlot, true);
 		}
 		return term;
 	}
@@ -262,5 +233,39 @@ public class LexicalTemplateTransformService {
 		}
 		LOGGER.debug("{} is replaced due to absent slot by {}", term, result);
 		return result;
+	}
+	
+	private static String transformTerm(List<DescriptionPojo> descriptions, String term, LexicalTemplate template,
+			Map<String, String> termAndCaseSignificanceMap, String termSlot, boolean isFsn) {
+		// TODO need to improve here to deal with different type of transformations for multiple slot values for a given slot name
+		// default for now to use "and". Ideally it should use regex
+		List<String> slotValues = new ArrayList<>();
+		for (DescriptionPojo pojo: descriptions) {
+			if (isAdditionalTermReplacementRequired(template, pojo.getConceptId())) {
+				term = performTermReplacementWithSlotValuesMatched(term, template);
+			} else {
+				String slotValue = isFsn ? TemplateUtil.getDescriptionFromFSN(pojo) : TemplateUtil.getDescriptionFromPT(pojo);
+				if (template.getRemoveParts() != null && !template.getRemoveParts().isEmpty()) {
+					for (String partToRemove : template.getRemoveParts()) {
+						slotValue = slotValue.replaceAll(partToRemove, "");
+					}
+					if (CaseSignificance.CASE_INSENSITIVE.name().equals(pojo.getCaseSignificance())) {
+						slotValue = StringUtils.uncapitalize(slotValue);
+					}
+				}
+				slotValues.add(slotValue);
+				termAndCaseSignificanceMap.put(slotValue, pojo.getCaseSignificance());
+			}
+		}
+		Collections.sort(slotValues);
+		StringBuilder termBuilder = new StringBuilder();
+		for (int i=0; i < slotValues.size(); i++) {
+			if (i > 0) {
+				termBuilder.append(" and ");
+			}
+			termBuilder.append(slotValues.get(i));
+		}
+		
+		return term.replace(termSlot, termBuilder.toString());
 	}
 }
